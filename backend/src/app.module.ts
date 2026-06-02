@@ -7,6 +7,7 @@ import { Bookmark } from './bookmarks/bookmark.entity';
 import { UsersModule } from './users/users.module';
 import { AuthModule } from './auth/auth.module';
 import { TagsModule } from './tags/tags.module';
+import { BookmarksModule } from './bookmarks/bookmarks.module';
 
 @Module({
   imports: [
@@ -28,6 +29,7 @@ import { TagsModule } from './tags/tags.module';
     UsersModule,
     AuthModule,
     TagsModule,
+    BookmarksModule,
   ],
 })
 export class AppModule {}
