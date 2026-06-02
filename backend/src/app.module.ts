@@ -4,6 +4,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { User } from './users/user.entity';
 import { Tag } from './tags/tag.entity';
 import { Bookmark } from './bookmarks/bookmark.entity';
+import { UsersModule } from './users/users.module';
 
 @Module({
   imports: [
@@ -22,7 +23,7 @@ import { Bookmark } from './bookmarks/bookmark.entity';
         logging: false,
       }),
     }),
-    // Feature modules added in Tasks 4–7
+    UsersModule,
   ],
 })
 export class AppModule {}
