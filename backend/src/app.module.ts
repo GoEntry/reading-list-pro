@@ -8,6 +8,7 @@ import { UsersModule } from './users/users.module';
 import { AuthModule } from './auth/auth.module';
 import { TagsModule } from './tags/tags.module';
 import { BookmarksModule } from './bookmarks/bookmarks.module';
+import { StatsModule } from './stats/stats.module';
 
 @Module({
   imports: [
@@ -30,6 +31,7 @@ import { BookmarksModule } from './bookmarks/bookmarks.module';
     AuthModule,
     TagsModule,
     BookmarksModule,
+    StatsModule,
   ],
 })
 export class AppModule {}
