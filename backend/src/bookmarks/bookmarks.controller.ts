@@ -22,12 +22,14 @@ export class BookmarksController {
     @Query('page') page?: string,
     @Query('limit') limit?: string,
   ) {
+    const parsedPage = parseInt(page ?? '1', 10);
+    const parsedLimit = parseInt(limit ?? '20', 10);
     return this.bookmarksService.findAll(req.user.id, {
       search,
       tagIds: tagIds ? tagIds.split(',') : undefined,
       isRead: isRead !== undefined ? isRead === 'true' : undefined,
-      page: page ? Number(page) : 1,
-      limit: limit ? Math.min(Number(limit), 100) : 20,
+      page: Number.isNaN(parsedPage) || parsedPage < 1 ? 1 : parsedPage,
+      limit: Number.isNaN(parsedLimit) || parsedLimit < 1 ? 20 : Math.min(parsedLimit, 100),
     });
   }
 

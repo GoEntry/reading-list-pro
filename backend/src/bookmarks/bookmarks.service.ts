@@ -42,7 +42,10 @@ export class BookmarksService {
       qb.andWhere('b.isRead = :isRead', { isRead });
     }
     if (tagIds?.length) {
-      qb.andWhere('tag.id IN (:...tagIds)', { tagIds });
+      qb.andWhere(
+        'b.id IN (SELECT bt."bookmarkId" FROM bookmark_tags bt WHERE bt."tagId" IN (:...tagIds))',
+        { tagIds },
+      );
     }
 
     const [items, total] = await qb.getManyAndCount();
