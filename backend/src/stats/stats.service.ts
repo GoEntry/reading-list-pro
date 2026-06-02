@@ -34,7 +34,7 @@ export class StatsService {
        FROM bookmarks WHERE "userId" = $1`,
       [userId],
     );
-    const row = rows[0];
+    const row = rows[0] ?? { total: '0', readCount: '0', unreadCount: '0' };
     return {
       total: parseInt(row.total, 10),
       readCount: parseInt(row.readCount, 10),

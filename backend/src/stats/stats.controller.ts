@@ -17,9 +17,12 @@ export class StatsController {
   @ApiQuery({
     name: 'days',
     required: false,
+    type: Number,
+    example: 30,
     description: 'Number of days for the byDay breakdown (1–365, default 30)',
   })
   @ApiResponse({ status: 200, type: StatsResponseDto })
+  @ApiResponse({ status: 401, description: 'Unauthorized' })
   getStats(
     @Req() req: Request & { user: { id: string } },
     @Query('days', new DefaultValuePipe(30), ParseIntPipe) days: number,

@@ -80,6 +80,6 @@ describe('StatsService', () => {
     ] as Bookmark[]);
 
     const result = await service.getStats('user-1', 30);
-    expect(result.topDomains.length).toBeLessThanOrEqual(5);
+    expect(result.topDomains.length).toBe(5);
   });
 });
