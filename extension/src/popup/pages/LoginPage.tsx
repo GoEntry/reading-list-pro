@@ -5,6 +5,11 @@ interface Props {
   onSwitchToRegister: () => void;
 }
 
+const inputClass = `w-full px-3 py-2.5 border border-gray-300 dark:border-gray-600 rounded-lg
+  text-sm bg-white dark:bg-gray-800 text-gray-900 dark:text-white
+  focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent
+  placeholder-gray-400 dark:placeholder-gray-500 transition-colors`;
+
 export function LoginPage({ onSwitchToRegister }: Props) {
   const { login } = useAuth();
   const [email, setEmail] = useState('');
@@ -43,36 +48,32 @@ export function LoginPage({ onSwitchToRegister }: Props) {
 
       <form onSubmit={handleSubmit} className="w-full space-y-4">
         <div>
-          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">
+          <label htmlFor="login-email" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">
             Email
           </label>
           <input
+            id="login-email"
             type="email"
             value={email}
-            onChange={(e) => setEmail(e.target.value)}
+            onChange={(e) => { setEmail(e.target.value); setError(''); }}
             required
             placeholder="you@example.com"
-            className="w-full px-3 py-2.5 border border-gray-300 dark:border-gray-600 rounded-lg
-                       text-sm bg-white dark:bg-gray-800 text-gray-900 dark:text-white
-                       focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent
-                       placeholder-gray-400 dark:placeholder-gray-500 transition-colors"
+            className={inputClass}
           />
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">
+          <label htmlFor="login-password" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">
             Password
           </label>
           <input
+            id="login-password"
             type="password"
             value={password}
-            onChange={(e) => setPassword(e.target.value)}
+            onChange={(e) => { setPassword(e.target.value); setError(''); }}
             required
             placeholder="••••••••"
-            className="w-full px-3 py-2.5 border border-gray-300 dark:border-gray-600 rounded-lg
-                       text-sm bg-white dark:bg-gray-800 text-gray-900 dark:text-white
-                       focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent
-                       placeholder-gray-400 dark:placeholder-gray-500 transition-colors"
+            className={inputClass}
           />
         </div>
 

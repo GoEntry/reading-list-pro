@@ -62,13 +62,14 @@ export function RegisterPage({ onSwitchToLogin }: Props) {
 
       <form onSubmit={handleSubmit} className="w-full space-y-3.5">
         <div>
-          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">
+          <label htmlFor="reg-email" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">
             Email
           </label>
           <input
+            id="reg-email"
             type="email"
             value={email}
-            onChange={(e) => setEmail(e.target.value)}
+            onChange={(e) => { setEmail(e.target.value); setError(''); }}
             required
             placeholder="you@example.com"
             className={inputClass}
@@ -76,13 +77,14 @@ export function RegisterPage({ onSwitchToLogin }: Props) {
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">
+          <label htmlFor="reg-password" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">
             Password
           </label>
           <input
+            id="reg-password"
             type="password"
             value={password}
-            onChange={(e) => setPassword(e.target.value)}
+            onChange={(e) => { setPassword(e.target.value); setError(''); }}
             required
             placeholder="Min. 6 characters"
             className={inputClass}
@@ -90,13 +92,14 @@ export function RegisterPage({ onSwitchToLogin }: Props) {
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">
+          <label htmlFor="reg-confirm" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">
             Confirm Password
           </label>
           <input
+            id="reg-confirm"
             type="password"
             value={confirmPassword}
-            onChange={(e) => setConfirmPassword(e.target.value)}
+            onChange={(e) => { setConfirmPassword(e.target.value); setError(''); }}
             required
             placeholder="••••••••"
             className={inputClass}
