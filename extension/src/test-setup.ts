@@ -1,4 +1,4 @@
-import { vi } from 'vitest';
+import { vi, beforeEach } from 'vitest';
 
 const store: Record<string, unknown> = {};
 
@@ -30,3 +30,7 @@ globalThis.chrome = {
     onInstalled: { addListener: vi.fn() },
   },
 } as unknown as typeof chrome;
+
+beforeEach(() => {
+  Object.keys(store).forEach((k) => delete store[k]);
+});
