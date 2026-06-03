@@ -30,13 +30,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     // Restore session from chrome.storage on popup open
-    storage.getAuth().then((auth) => {
-      if (auth) {
-        setAuthToken(auth.accessToken);
-        setUser({ userId: auth.userId, email: auth.email });
-      }
-      setLoading(false);
-    });
+    storage.getAuth()
+      .then((auth) => {
+        if (auth) {
+          setAuthToken(auth.accessToken);
+          setUser({ userId: auth.userId, email: auth.email });
+        }
+        setLoading(false);
+      })
+      .catch(() => setLoading(false));
   }, []);
 
   async function applyAuth(response: AuthResponse): Promise<void> {
