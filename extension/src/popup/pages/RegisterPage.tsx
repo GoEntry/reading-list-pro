@@ -5,6 +5,11 @@ interface Props {
   onSwitchToLogin: () => void;
 }
 
+const inputClass = `w-full px-3 py-2.5 border border-gray-300 dark:border-gray-600 rounded-lg
+  text-sm bg-white dark:bg-gray-800 text-gray-900 dark:text-white
+  focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent
+  placeholder-gray-400 dark:placeholder-gray-500 transition-colors`;
+
 export function RegisterPage({ onSwitchToLogin }: Props) {
   const { register } = useAuth();
   const [email, setEmail] = useState('');
@@ -40,11 +45,6 @@ export function RegisterPage({ onSwitchToLogin }: Props) {
       setLoading(false);
     }
   }
-
-  const inputClass = `w-full px-3 py-2.5 border border-gray-300 dark:border-gray-600 rounded-lg
-    text-sm bg-white dark:bg-gray-800 text-gray-900 dark:text-white
-    focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent
-    placeholder-gray-400 dark:placeholder-gray-500 transition-colors`;
 
   return (
     <div className="flex flex-col items-center justify-center min-h-full px-6 py-8">
