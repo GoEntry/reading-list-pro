@@ -23,7 +23,6 @@ export function BookmarksPage() {
   const [activeTab, setActiveTab] = useState<ActiveTab>('all');
   const [search, setSearch] = useState('');
   const [selectedTagIds, setSelectedTagIds] = useState<string[]>([]);
-  const [showUnreadOnly, setShowUnreadOnly] = useState(false);
   const [showFilter, setShowFilter] = useState(false);
 
   const [bookmarks, setBookmarks] = useState<Bookmark[]>([]);
@@ -36,14 +35,12 @@ export function BookmarksPage() {
   const [loadingMore, setLoadingMore] = useState(false);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [saveError, setSaveError] = useState<string | null>(null);
 
   const debouncedSearch = useDebounce(search, 300);
   const lastCardRef = useRef<HTMLDivElement>(null);
 
-  // Sync tab → showUnreadOnly
-  useEffect(() => {
-    setShowUnreadOnly(activeTab === 'unread');
-  }, [activeTab]);
+  const showUnreadOnly = activeTab === 'unread';
 
   const loadPage = useCallback(async (pageNum: number, replace: boolean): Promise<void> => {
     try {
@@ -62,7 +59,7 @@ export function BookmarksPage() {
     } catch {
       setError('network');
     }
-  }, [debouncedSearch, selectedTagIds, showUnreadOnly]);
+  }, [debouncedSearch, selectedTagIds, activeTab]);
 
   // Load tags once on mount
   useEffect(() => {
@@ -91,6 +88,7 @@ export function BookmarksPage() {
 
   async function handleSave() {
     setSaving(true);
+    setSaveError(null);
     try {
       const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
       if (!tab.url) return;
@@ -102,7 +100,9 @@ export function BookmarksPage() {
           target: { tabId: tab.id! },
           func: extractMetadata,
         });
-        meta = results[0].result as typeof meta;
+        if (results?.[0]?.result) {
+          meta = results[0].result as typeof meta;
+        }
       } catch {
         // System page (chrome://) — executeScript throws; keep the tab-data fallback already assigned
       }
@@ -111,7 +111,7 @@ export function BookmarksPage() {
       // Refetch page 1 to show the new bookmark at top (no optimistic update)
       await loadPage(1, true);
     } catch {
-      // Silent fail — user can retry by clicking Save again
+      setSaveError('Failed to save. Please try again.');
     } finally {
       setSaving(false);
     }
@@ -136,7 +136,6 @@ export function BookmarksPage() {
   function clearFilters() {
     setSearch('');
     setSelectedTagIds([]);
-    setShowUnreadOnly(false);
     setActiveTab('all');
   }
 
@@ -172,6 +171,12 @@ export function BookmarksPage() {
         </button>
       </div>
 
+      {saveError && (
+        <p className="text-[10px] text-red-400 px-3 py-1 bg-red-900/20 border-b border-red-900/40">
+          {saveError}
+        </p>
+      )}
+
       {/* Search bar */}
       <SearchBar
         value={search}
@@ -187,7 +192,7 @@ export function BookmarksPage() {
           selectedTagIds={selectedTagIds}
           showUnreadOnly={showUnreadOnly}
           onTagToggle={handleTagToggle}
-          onUnreadToggle={() => setShowUnreadOnly(v => !v)}
+          onUnreadToggle={() => setActiveTab(prev => prev === 'unread' ? 'all' : 'unread')}
           onClose={() => setShowFilter(false)}
         />
       )}
