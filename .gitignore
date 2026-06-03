@@ -18,3 +18,9 @@ npm-debug.log*
 # OS
 .DS_Store
 Thumbs.db
+
+# Internal docs and Claude config
+.claude/
+docs/
+PROMPT.md
+.superpowers/
