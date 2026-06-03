@@ -3,7 +3,7 @@
   "name": "Reading List Pro",
   "version": "1.0.0",
   "description": "Smart bookmark manager with cloud sync",
-  "permissions": ["storage", "activeTab", "contextMenus", "tabs"],
+  "permissions": ["storage", "activeTab", "contextMenus", "tabs", "scripting"],
   "host_permissions": ["<all_urls>"],
   "background": {
     "service_worker": "background.js",
