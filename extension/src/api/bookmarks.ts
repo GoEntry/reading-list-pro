@@ -42,6 +42,7 @@ export interface CreateBookmarkPayload {
 }
 
 export interface UpdateBookmarkPayload {
+  title?: string;
   notes?: string;
   isRead?: boolean;
   tagIds?: string[];
@@ -61,8 +62,8 @@ export const bookmarksApi = {
     if (params.search) axiosParams['search'] = params.search;
     if (params.tagIds?.length) axiosParams['tagIds'] = params.tagIds.join(',');
     if (params.isRead !== undefined) axiosParams['isRead'] = params.isRead;
-    if (params.page) axiosParams['page'] = params.page;
-    if (params.limit) axiosParams['limit'] = params.limit;
+    if (params.page !== undefined) axiosParams['page'] = params.page;
+    if (params.limit !== undefined) axiosParams['limit'] = params.limit;
     const { data } = await apiClient.get<BookmarkListResponse>('/bookmarks', { params: axiosParams });
     return data;
   },
