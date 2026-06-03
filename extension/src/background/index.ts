@@ -42,7 +42,7 @@ chrome.contextMenus.onClicked.addListener(async (info, tab) => {
   if (!token) return; // not logged in — silently skip
 
   // 4. POST to API
-  const url = info.pageUrl ?? tab.url ?? '';
+  const url = info.linkUrl ?? info.pageUrl ?? tab.url ?? '';
   if (!url) return;
 
   try {
