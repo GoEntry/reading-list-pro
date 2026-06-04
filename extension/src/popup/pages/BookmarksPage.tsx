@@ -118,6 +118,16 @@ export function BookmarksPage() {
     }
   }
 
+  async function handleToggleRead(id: string, isRead: boolean) {
+    const prev = bookmarks;
+    setBookmarks(prev.map(b => b.id === id ? { ...b, isRead } : b));
+    try {
+      await bookmarksApi.update(id, { isRead });
+    } catch {
+      setBookmarks(prev);
+    }
+  }
+
   async function handleDelete(id: string) {
     try {
       await bookmarksApi.remove(id);
@@ -262,6 +272,7 @@ export function BookmarksPage() {
                 key={bookmark.id}
                 bookmark={bookmark}
                 onDelete={handleDelete}
+                onToggleRead={handleToggleRead}
                 isLast={i === bookmarks.length - 1}
                 lastRef={lastCardRef}
               />

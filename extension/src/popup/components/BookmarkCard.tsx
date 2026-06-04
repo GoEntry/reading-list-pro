@@ -3,6 +3,7 @@ import type { Bookmark } from '../../api/bookmarks';
 interface Props {
   bookmark: Bookmark;
   onDelete: (id: string) => void;
+  onToggleRead: (id: string, isRead: boolean) => void;
   isLast?: boolean;
   lastRef?: React.Ref<HTMLDivElement>;
 }
@@ -23,7 +24,7 @@ function extractDomain(url: string): string {
   catch { return url; }
 }
 
-export function BookmarkCard({ bookmark, onDelete, isLast, lastRef }: Props) {
+export function BookmarkCard({ bookmark, onDelete, onToggleRead, isLast, lastRef }: Props) {
   const isRead = bookmark.isRead;
 
   function handleCardClick() {
@@ -48,8 +49,23 @@ export function BookmarkCard({ bookmark, onDelete, isLast, lastRef }: Props) {
       onClick={handleCardClick}
       onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') handleCardClick(); }}
     >
-      {/* Row 1: favicon + title + delete button */}
+      {/* Row 1: toggle + favicon + title + delete button */}
       <div className="flex items-center gap-2 min-w-0">
+        <button
+          className={`w-3.5 h-3.5 rounded-full flex-shrink-0 flex items-center justify-center transition-colors ${
+            isRead
+              ? 'bg-indigo-500 border border-indigo-500'
+              : 'border border-slate-600 hover:border-indigo-400'
+          }`}
+          title={isRead ? 'Mark as unread' : 'Mark as read'}
+          onClick={(e) => { e.stopPropagation(); onToggleRead(bookmark.id, !bookmark.isRead); }}
+        >
+          {isRead && (
+            <svg className="w-2 h-2" viewBox="0 0 10 10" fill="none" stroke="white" strokeWidth={2.5} strokeLinecap="round" strokeLinejoin="round">
+              <path d="M2 6l3 3 5-5" />
+            </svg>
+          )}
+        </button>
         {bookmark.favicon ? (
           <img
             src={bookmark.favicon}
@@ -77,7 +93,6 @@ export function BookmarkCard({ bookmark, onDelete, isLast, lastRef }: Props) {
       {/* Row 2: domain + time + read badge */}
       <p className="text-[10px] text-slate-500 mt-0.5 ml-[22px]">
         {extractDomain(bookmark.url)} · {formatRelativeTime(bookmark.createdAt)}
-        {isRead && <span className="ml-1.5 text-emerald-600">✓ read</span>}
       </p>
 
       {/* Row 3: tags — only rendered when present */}
