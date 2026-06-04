@@ -44,7 +44,7 @@
 ### 1. Клонируй репозиторий
 
 ```bash
-git clone https://github.com/<your-username>/reading-list-pro.git
+git clone https://github.com/GoEntry/reading-list-pro.git
 cd reading-list-pro
 ```
 
@@ -220,6 +220,75 @@ reading-list-pro/
 
 ---
 
+## Тестирование
+
+```bash
+cd extension
+npm run test:run
+```
+
+```
+✓ src/lib/storage.test.ts       (4 tests)
+✓ src/lib/og-extractor.test.ts  (7 tests)
+✓ src/api/tags.test.ts          (2 tests)
+✓ src/api/bookmarks.test.ts     (7 tests)
+✓ src/api/auth.test.ts          (5 tests)
+
+Test Files  5 passed (5)
+Tests       25 passed (25)
+```
+
+---
+
+## Чеклист ТЗ
+
+### Функциональность
+- [x] Регистрация и вход (email + пароль, JWT)
+- [x] Сохранение текущей вкладки в 1 клик
+- [x] Контекстное меню «Сохранить в Reading List»
+- [x] Автозахват title, favicon, Open Graph превью (на бэкенде через cheerio)
+- [x] Список закладок с поиском по title / URL
+- [x] Фильтрация по тегам и статусу «Непрочитанное»
+- [x] Пагинация / бесконечная прокрутка
+- [x] Заметки к закладке
+- [x] Пометить как прочитанное / непрочитанное
+- [x] Удаление закладки
+- [x] Управление тегами (создать, переименовать, сменить цвет, удалить)
+- [x] Статистика: total / read / unread, топ-5 доменов, динамика по дням (recharts)
+- [x] Тёмная / светлая тема с сохранением настройки
+- [x] Синхронизация через облачный бэкенд
+
+### Архитектура
+- [x] Manifest V3 (актуальный стандарт)
+- [x] JWT хранится в `chrome.storage.local`
+- [x] Refresh-ротация токенов
+- [x] OG-парсинг на бэкенде (не в расширении)
+- [x] CORS настроен с первого дня
+- [x] Docker + docker-compose (один `docker-compose up`)
+- [x] Swagger / OpenAPI документация
+- [x] Деплой на Render.com с managed PostgreSQL
+
+### Качество кода
+- [x] TypeScript strict mode (backend + extension)
+- [x] DTO с валидацией (`class-validator`)
+- [x] 25 unit-тестов (extension API + утилиты)
+- [x] Состояния загрузки, ошибок и пустого экрана во всех списках
+- [x] Optimistic update при toggle read / delete
+
+---
+
 ## Демо-видео
 
-> Ссылка будет добавлена на День 7
+**[▶ Смотреть демо](#)** *(ссылка будет добавлена)*
+
+### Что показано в видео (2–3 мин)
+
+1. **0:00** — Расширение установлено, открываем popup
+2. **0:15** — Регистрация нового аккаунта
+3. **0:30** — Сохранение текущей вкладки кнопкой «Save page» — автозахват title + favicon
+4. **0:50** — Контекстное меню: правый клик → «Сохранить в Reading List»
+5. **1:05** — Список закладок: поиск, фильтр по тегам, «Непрочитанные»
+6. **1:30** — Редактирование заметки, пометить прочитанным
+7. **1:50** — Вкладка Statistics: счётчики, топ доменов, график по дням
+8. **2:10** — Options page: создание тега с цветом, переключение темы
+9. **2:30** — Swagger UI на задеплоенном бэкенде
