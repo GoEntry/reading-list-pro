@@ -60,7 +60,7 @@ export function BookmarksPage() {
     } catch {
       setError('network');
     }
-  }, [debouncedSearch, selectedTagIds, activeTab]);
+  }, [debouncedSearch, selectedTagIds, showUnreadOnly]);
 
   // Load tags once on mount
   useEffect(() => {
