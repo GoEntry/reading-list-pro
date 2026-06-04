@@ -21,7 +21,7 @@ function ProfileSection() {
       <h2 className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider mb-3">
         Profile
       </h2>
-      <div className="flex items-center justify-between bg-slate-800/50 dark:bg-slate-800/50 bg-gray-100 rounded-lg px-4 py-3">
+      <div className="flex items-center justify-between bg-gray-100 dark:bg-slate-800/50 rounded-lg px-4 py-3">
         <span className="text-[13px] text-gray-700 dark:text-slate-200">{user?.email}</span>
         <button
           onClick={handleLogout}
@@ -49,7 +49,7 @@ function ThemeSection() {
       <h2 className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider mb-3">
         Theme
       </h2>
-      <div className="flex gap-1 bg-slate-800/50 dark:bg-slate-800/50 bg-gray-100 rounded-lg p-1 w-fit">
+      <div className="flex gap-1 bg-gray-100 dark:bg-slate-800/50 rounded-lg p-1 w-fit">
         {modes.map(({ value, label }) => (
           <button
             key={value}
@@ -57,7 +57,7 @@ function ThemeSection() {
             className={`text-[11px] font-medium px-3 py-1.5 rounded-md transition-colors ${
               theme === value
                 ? 'bg-indigo-600 text-white'
-                : 'text-slate-400 hover:text-slate-200 dark:text-slate-400 dark:hover:text-slate-200'
+                : 'text-gray-500 hover:text-gray-800 dark:text-slate-400 dark:hover:text-slate-200'
             }`}
           >
             {label}
@@ -80,6 +80,7 @@ function TagsSection() {
   const [deletingId, setDeletingId] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const editRef = useRef<HTMLInputElement>(null);
+  const committingRef = useRef(false);
 
   useEffect(() => {
     tagsApi.list()
@@ -122,11 +123,12 @@ function TagsSection() {
   }
 
   async function commitEdit() {
-    if (!editingId) return;
+    if (!editingId || committingRef.current) return;
+    committingRef.current = true;
     const name = editingName.trim();
     const tag = tags.find(t => t.id === editingId);
     setEditingId(null);
-    if (!tag || !name || tag.name === name) return;
+    if (!tag || !name || tag.name === name) { committingRef.current = false; return; }
     const prev = tags;
     setTags(prev.map(t => t.id === editingId ? { ...t, name } : t));
     setError(null);
@@ -135,6 +137,8 @@ function TagsSection() {
     } catch {
       setTags(prev);
       setError('Failed to rename tag.');
+    } finally {
+      committingRef.current = false;
     }
   }
 
