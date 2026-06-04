@@ -6,8 +6,9 @@ import { BookmarkCard } from '../components/BookmarkCard';
 import { SearchBar } from '../components/SearchBar';
 import { TagFilter } from '../components/TagFilter';
 import { EmptyState } from '../components/EmptyState';
+import { StatsPage } from './StatsPage';
 
-type ActiveTab = 'all' | 'unread';
+type ActiveTab = 'all' | 'unread' | 'stats';
 const PAGE_SIZE = 20;
 
 function useDebounce<T>(value: T, delay: number): T {
@@ -177,16 +178,18 @@ export function BookmarksPage() {
         </p>
       )}
 
-      {/* Search bar */}
-      <SearchBar
-        value={search}
-        onChange={setSearch}
-        onFilterClick={() => setShowFilter(f => !f)}
-        filterActive={filterActive}
-      />
+      {/* Search bar — hidden on Stats tab */}
+      {activeTab !== 'stats' && (
+        <SearchBar
+          value={search}
+          onChange={setSearch}
+          onFilterClick={() => setShowFilter(f => !f)}
+          filterActive={filterActive}
+        />
+      )}
 
       {/* Filter dropdown — absolutely positioned, overlays card list */}
-      {showFilter && (
+      {activeTab !== 'stats' && showFilter && (
         <TagFilter
           tags={tags}
           selectedTagIds={selectedTagIds}
@@ -212,11 +215,13 @@ export function BookmarksPage() {
             {tab === 'all' ? `All${total > 0 ? ` (${total})` : ''}` : 'Unread'}
           </button>
         ))}
-        {/* Stats tab — placeholder for Day 5 */}
         <button
-          className="text-[10px] px-2.5 py-1 rounded-md text-slate-700 cursor-not-allowed"
-          title="Coming in Day 5"
-          disabled
+          onClick={() => { setActiveTab('stats'); setShowFilter(false); }}
+          className={`text-[10px] px-2.5 py-1 rounded-md transition-colors ${
+            activeTab === 'stats'
+              ? 'bg-indigo-600 text-white font-medium'
+              : 'text-slate-500 hover:text-slate-300'
+          }`}
         >
           Stats
         </button>
@@ -225,47 +230,53 @@ export function BookmarksPage() {
       {/* Card list */}
       <div className="flex-1 overflow-y-auto px-2.5 py-2 flex flex-col gap-1">
 
-        {/* Skeleton loading */}
-        {loading && [0, 1, 2].map(i => (
-          <div key={i} className="h-11 bg-slate-800 rounded-lg animate-pulse" />
-        ))}
+        {activeTab === 'stats' && <StatsPage />}
 
-        {/* Error state */}
-        {!loading && error && (
-          <EmptyState
-            variant="error"
-            onRetry={() => {
-              setError(null);
-              setLoading(true);
-              loadPage(1, true).finally(() => setLoading(false));
-            }}
-          />
-        )}
+        {activeTab !== 'stats' && (
+          <>
+            {/* Skeleton loading */}
+            {loading && [0, 1, 2].map(i => (
+              <div key={i} className="h-11 bg-slate-800 rounded-lg animate-pulse" />
+            ))}
 
-        {/* Empty state */}
-        {showEmpty && (
-          <EmptyState variant={emptyVariant} onClearFilters={clearFilters} />
-        )}
+            {/* Error state */}
+            {!loading && error && (
+              <EmptyState
+                variant="error"
+                onRetry={() => {
+                  setError(null);
+                  setLoading(true);
+                  loadPage(1, true).finally(() => setLoading(false));
+                }}
+              />
+            )}
 
-        {/* Bookmark cards */}
-        {!loading && !error && bookmarks.map((bookmark, i) => (
-          <BookmarkCard
-            key={bookmark.id}
-            bookmark={bookmark}
-            onDelete={handleDelete}
-            isLast={i === bookmarks.length - 1}
-            lastRef={lastCardRef}
-          />
-        ))}
+            {/* Empty state */}
+            {showEmpty && (
+              <EmptyState variant={emptyVariant} onClearFilters={clearFilters} />
+            )}
 
-        {/* Load-more spinner */}
-        {loadingMore && (
-          <div className="flex justify-center py-2">
-            <svg className="animate-spin w-4 h-4 text-indigo-500" fill="none" viewBox="0 0 24 24">
-              <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-              <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
-            </svg>
-          </div>
+            {/* Bookmark cards */}
+            {!loading && !error && bookmarks.map((bookmark, i) => (
+              <BookmarkCard
+                key={bookmark.id}
+                bookmark={bookmark}
+                onDelete={handleDelete}
+                isLast={i === bookmarks.length - 1}
+                lastRef={lastCardRef}
+              />
+            ))}
+
+            {/* Load-more spinner */}
+            {loadingMore && (
+              <div className="flex justify-center py-2">
+                <svg className="animate-spin w-4 h-4 text-indigo-500" fill="none" viewBox="0 0 24 24">
+                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+                </svg>
+              </div>
+            )}
+          </>
         )}
 
       </div>
