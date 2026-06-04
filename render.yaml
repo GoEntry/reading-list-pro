@@ -1,0 +1,44 @@
+services:
+  - type: web
+    name: reading-list-pro
+    env: docker
+    dockerfilePath: ./backend/Dockerfile
+    dockerContext: ./backend
+    plan: free
+    healthCheckPath: /api/docs
+    envVars:
+      - key: PORT
+        value: 3000
+      - key: DB_HOST
+        fromDatabase:
+          name: reading-list-pro-db
+          property: host
+      - key: DB_PORT
+        fromDatabase:
+          name: reading-list-pro-db
+          property: port
+      - key: DB_USER
+        fromDatabase:
+          name: reading-list-pro-db
+          property: user
+      - key: DB_PASSWORD
+        fromDatabase:
+          name: reading-list-pro-db
+          property: password
+      - key: DB_NAME
+        fromDatabase:
+          name: reading-list-pro-db
+          property: database
+      - key: JWT_ACCESS_SECRET
+        generateValue: true
+      - key: JWT_REFRESH_SECRET
+        generateValue: true
+      - key: JWT_ACCESS_EXPIRES
+        value: 15m
+      - key: JWT_REFRESH_EXPIRES
+        value: 7d
+
+databases:
+  - name: reading-list-pro-db
+    plan: free
+    databaseName: reading_list_pro

@@ -1,6 +1,6 @@
 import {
   Controller, Get, Post, Patch, Delete,
-  Body, Param, Query, UseGuards, Req,
+  Body, Param, Query, UseGuards, Req, BadRequestException,
 } from '@nestjs/common';
 import {
   ApiTags, ApiOperation, ApiResponse, ApiBearerAuth,
@@ -8,6 +8,7 @@ import {
 } from '@nestjs/swagger';
 import { Request } from 'express';
 import { BookmarksService } from './bookmarks.service';
+import { OgScraperService } from './og-scraper.service';
 import { CreateBookmarkDto } from './dto/create-bookmark.dto';
 import { UpdateBookmarkDto } from './dto/update-bookmark.dto';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
@@ -17,7 +18,10 @@ import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 @Controller('bookmarks')
 @UseGuards(JwtAuthGuard)
 export class BookmarksController {
-  constructor(private readonly bookmarksService: BookmarksService) {}
+  constructor(
+    private readonly bookmarksService: BookmarksService,
+    private readonly ogScraperService: OgScraperService,
+  ) {}
 
   @Get()
   @ApiOperation({ summary: 'List bookmarks with optional search, tag filter, and pagination' })
@@ -44,6 +48,16 @@ export class BookmarksController {
       page: Number.isNaN(parsedPage) || parsedPage < 1 ? 1 : parsedPage,
       limit: Number.isNaN(parsedLimit) || parsedLimit < 1 ? 20 : Math.min(parsedLimit, 100),
     });
+  }
+
+  @Get('og')
+  @ApiOperation({ summary: 'Fetch Open Graph metadata for a given URL (server-side)' })
+  @ApiQuery({ name: 'url', required: true, description: 'URL to scrape OG data from' })
+  @ApiResponse({ status: 200, description: 'OG metadata extracted from the page' })
+  @ApiResponse({ status: 400, description: 'URL is missing or unreachable' })
+  scrapeOg(@Query('url') url: string) {
+    if (!url) throw new BadRequestException('url query param is required');
+    return this.ogScraperService.scrape(url);
   }
 
   @Get(':id')
