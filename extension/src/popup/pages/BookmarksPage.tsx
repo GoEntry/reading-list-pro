@@ -138,6 +138,18 @@ export function BookmarksPage() {
     }
   }
 
+  async function handleTagsChange(id: string, tagIds: string[]) {
+    const prev = bookmarks;
+    setBookmarks(prev.map(b =>
+      b.id === id ? { ...b, tags: tags.filter(t => tagIds.includes(t.id)) } : b
+    ));
+    try {
+      await bookmarksApi.update(id, { tagIds });
+    } catch {
+      setBookmarks(prev);
+    }
+  }
+
   function handleTagToggle(tagId: string) {
     setSelectedTagIds(prev =>
       prev.includes(tagId) ? prev.filter(id => id !== tagId) : [...prev, tagId]
@@ -271,8 +283,10 @@ export function BookmarksPage() {
               <BookmarkCard
                 key={bookmark.id}
                 bookmark={bookmark}
+                allTags={tags}
                 onDelete={handleDelete}
                 onToggleRead={handleToggleRead}
+                onTagsChange={handleTagsChange}
                 isLast={i === bookmarks.length - 1}
                 lastRef={lastCardRef}
               />
