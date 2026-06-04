@@ -24,22 +24,26 @@ function applyTheme(mode: ThemeMode): void {
 
 export function ThemeProvider({ children }: { children: ReactNode }) {
   const [theme, setThemeState] = useState<ThemeMode>('system');
+  const [loaded, setLoaded] = useState(false);
 
   useEffect(() => {
     chrome.storage.local.get('theme', (result) => {
       const stored = (result.theme as ThemeMode) || 'system';
       setThemeState(stored);
       applyTheme(stored);
+      setLoaded(true);
     });
   }, []);
 
+  // Attach OS listener only after storage read resolves to avoid attaching
+  // when the persisted preference is not 'system'.
   useEffect(() => {
-    if (theme !== 'system') return;
+    if (!loaded || theme !== 'system') return;
     const mq = window.matchMedia('(prefers-color-scheme: dark)');
     const handler = () => applyTheme('system');
     mq.addEventListener('change', handler);
     return () => mq.removeEventListener('change', handler);
-  }, [theme]);
+  }, [theme, loaded]);
 
   function setTheme(value: ThemeMode): void {
     setThemeState(value);
