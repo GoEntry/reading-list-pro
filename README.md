@@ -279,6 +279,5 @@ Tests       25 passed (25)
 
 ## Демо-видео
 
-**[▶ Смотреть демо](https://disk.yandex.ru/i/dU-WZfneShkZMg)**
+**[▶ Смотреть демо](https://disk.yandex.ru/i/mpcpYMwCmwAYEQ)**
 
- 

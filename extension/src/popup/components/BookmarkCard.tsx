@@ -7,6 +7,7 @@ interface Props {
   onDelete: (id: string) => void;
   onToggleRead: (id: string, isRead: boolean) => void;
   onTagsChange: (id: string, tagIds: string[]) => void;
+  onNotesChange: (id: string, notes: string) => void;
   isLast?: boolean;
   lastRef?: React.Ref<HTMLDivElement>;
 }
@@ -27,10 +28,13 @@ function extractDomain(url: string): string {
   catch { return url; }
 }
 
-export function BookmarkCard({ bookmark, allTags, onDelete, onToggleRead, onTagsChange, isLast, lastRef }: Props) {
+export function BookmarkCard({ bookmark, allTags, onDelete, onToggleRead, onTagsChange, onNotesChange, isLast, lastRef }: Props) {
   const isRead = bookmark.isRead;
   const [showTagPicker, setShowTagPicker] = useState(false);
+  const [showNotes, setShowNotes] = useState(false);
+  const [notesValue, setNotesValue] = useState(bookmark.notes ?? '');
   const pickerRef = useRef<HTMLDivElement>(null);
+  const notesRef = useRef<HTMLTextAreaElement>(null);
 
   // Close picker on outside click
   useEffect(() => {
@@ -53,9 +57,27 @@ export function BookmarkCard({ bookmark, allTags, onDelete, onToggleRead, onTags
     onDelete(bookmark.id);
   }
 
+  useEffect(() => {
+    if (showNotes) notesRef.current?.focus();
+  }, [showNotes]);
+
   function handleTagPickerToggle(e: React.MouseEvent) {
     e.stopPropagation();
     setShowTagPicker(v => !v);
+  }
+
+  function handleNotesToggle(e: React.MouseEvent) {
+    e.stopPropagation();
+    setShowTagPicker(false);
+    setShowNotes(v => !v);
+  }
+
+  function handleNotesSave() {
+    const trimmed = notesValue.trim();
+    if (trimmed !== (bookmark.notes ?? '').trim()) {
+      onNotesChange(bookmark.id, trimmed);
+    }
+    setShowNotes(false);
   }
 
   function handleTagCheck(e: React.MouseEvent, tagId: string) {
@@ -80,7 +102,6 @@ export function BookmarkCard({ bookmark, allTags, onDelete, onToggleRead, onTags
       onClick={handleCardClick}
       onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') handleCardClick(); }}
     >
-      {/* Row 1: toggle + favicon + title + action buttons */}
       <div className="flex items-center gap-2 min-w-0">
         <button
           className={`w-3.5 h-3.5 rounded-full flex-shrink-0 flex items-center justify-center transition-colors ${
@@ -111,7 +132,6 @@ export function BookmarkCard({ bookmark, allTags, onDelete, onToggleRead, onTags
           {bookmark.title || extractDomain(bookmark.url)}
         </span>
 
-        {/* Tag button — only shown when there are tags to pick */}
         {allTags.length > 0 && (
           <button
             onClick={handleTagPickerToggle}
@@ -127,6 +147,18 @@ export function BookmarkCard({ bookmark, allTags, onDelete, onToggleRead, onTags
         )}
 
         <button
+          onClick={handleNotesToggle}
+          className={`flex-shrink-0 transition-colors opacity-0 group-hover:opacity-100 focus:opacity-100 ${
+            bookmark.notes ? 'text-amber-400 opacity-100' : 'text-slate-600 hover:text-amber-400'
+          }`}
+          title={bookmark.notes ? 'Edit note' : 'Add note'}
+        >
+          <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+            <path strokeLinecap="round" strokeLinejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+          </svg>
+        </button>
+
+        <button
           onClick={handleDelete}
           className="flex-shrink-0 text-slate-600 hover:text-red-400 transition-colors opacity-0 group-hover:opacity-100 focus:opacity-100"
           title="Delete bookmark"
@@ -137,12 +169,10 @@ export function BookmarkCard({ bookmark, allTags, onDelete, onToggleRead, onTags
         </button>
       </div>
 
-      {/* Row 2: domain + time */}
       <p className="text-[10px] text-slate-500 mt-0.5 ml-[22px]">
         {extractDomain(bookmark.url)} · {formatRelativeTime(bookmark.createdAt)}
       </p>
 
-      {/* Row 3: assigned tags */}
       {bookmark.tags.length > 0 && (
         <div className="flex gap-1 flex-wrap mt-1.5 ml-[22px]">
           {bookmark.tags.map(tag => {
@@ -160,7 +190,34 @@ export function BookmarkCard({ bookmark, allTags, onDelete, onToggleRead, onTags
         </div>
       )}
 
-      {/* Tag picker dropdown */}
+      {!showNotes && bookmark.notes && (
+        <p
+          className="text-[10px] text-slate-400 mt-1.5 ml-[22px] line-clamp-2 cursor-text"
+          onClick={e => { e.stopPropagation(); setShowNotes(true); }}
+        >
+          {bookmark.notes}
+        </p>
+      )}
+
+      {showNotes && (
+        <textarea
+          ref={notesRef}
+          value={notesValue}
+          onChange={e => setNotesValue(e.target.value)}
+          onBlur={handleNotesSave}
+          onClick={e => e.stopPropagation()}
+          onKeyDown={e => {
+            e.stopPropagation();
+            if (e.key === 'Escape') setShowNotes(false);
+            if (e.key === 'Enter' && e.metaKey) handleNotesSave();
+          }}
+          placeholder="Add a note…"
+          rows={2}
+          className="w-full mt-1.5 ml-[22px] bg-slate-900 border border-slate-600 focus:border-indigo-500 rounded text-[10px] text-slate-300 placeholder-slate-600 px-2 py-1 resize-none focus:outline-none transition-colors"
+          style={{ width: 'calc(100% - 22px)' }}
+        />
+      )}
+
       {showTagPicker && (
         <div
           ref={pickerRef}

@@ -62,18 +62,16 @@ export function BookmarksPage() {
     }
   }, [debouncedSearch, selectedTagIds, showUnreadOnly]);
 
-  // Load tags once on mount
   useEffect(() => {
     tagsApi.list().then(setTags).catch(() => {});
   }, []);
 
-  // Reload bookmarks when loadPage changes (i.e., on mount and when filters change)
   useEffect(() => {
     setLoading(true);
     loadPage(1, true).finally(() => setLoading(false));
   }, [loadPage]);
 
-  // IntersectionObserver — fires loadMore when last card becomes visible
+  // IntersectionObserver подгружает следующую страницу когда последняя карточка попадает в видимость
   useEffect(() => {
     if (!lastCardRef.current || !hasMore || loadingMore) return;
     const el = lastCardRef.current;
@@ -105,11 +103,10 @@ export function BookmarksPage() {
           meta = results[0].result as typeof meta;
         }
       } catch {
-        // System page (chrome://) — executeScript throws; keep the tab-data fallback already assigned
+        // chrome:// страницы блокируют scripting — используем данные вкладки как fallback
       }
 
       await bookmarksApi.create({ url: tab.url, ...meta });
-      // Refetch page 1 to show the new bookmark at top (no optimistic update)
       await loadPage(1, true);
     } catch {
       setSaveError('Failed to save. Please try again.');
@@ -134,7 +131,17 @@ export function BookmarksPage() {
       setBookmarks(prev => prev.filter(b => b.id !== id));
       setTotal(prev => prev - 1);
     } catch {
-      // If delete fails, leave list unchanged
+      // при ошибке список остаётся без изменений
+    }
+  }
+
+  async function handleNotesChange(id: string, notes: string) {
+    const prev = bookmarks;
+    setBookmarks(prev.map(b => b.id === id ? { ...b, notes } : b));
+    try {
+      await bookmarksApi.update(id, { notes });
+    } catch {
+      setBookmarks(prev);
     }
   }
 
@@ -169,7 +176,6 @@ export function BookmarksPage() {
   return (
     <div className="flex flex-col h-full bg-[#0f172a] overflow-hidden relative">
 
-      {/* Header */}
       <div className="flex items-center gap-2 px-3 py-2 border-b border-slate-800 flex-shrink-0">
         <div className="w-6 h-6 bg-indigo-600 rounded flex items-center justify-center flex-shrink-0">
           <svg className="w-3.5 h-3.5 text-white" fill="currentColor" viewBox="0 0 20 20">
@@ -200,7 +206,6 @@ export function BookmarksPage() {
         </p>
       )}
 
-      {/* Search bar — hidden on Stats tab */}
       {activeTab !== 'stats' && (
         <SearchBar
           value={search}
@@ -210,7 +215,6 @@ export function BookmarksPage() {
         />
       )}
 
-      {/* Filter dropdown — absolutely positioned, overlays card list */}
       {activeTab !== 'stats' && showFilter && (
         <TagFilter
           tags={tags}
@@ -222,7 +226,6 @@ export function BookmarksPage() {
         />
       )}
 
-      {/* Tabs */}
       <div className="flex gap-1 px-3 py-1.5 border-b border-slate-800 flex-shrink-0">
         {(['all', 'unread'] as ActiveTab[]).map(tab => (
           <button
@@ -249,19 +252,16 @@ export function BookmarksPage() {
         </button>
       </div>
 
-      {/* Card list */}
       <div className="flex-1 overflow-y-auto px-2.5 py-2 flex flex-col gap-1">
 
         {activeTab === 'stats' && <StatsPage />}
 
         {activeTab !== 'stats' && (
           <>
-            {/* Skeleton loading */}
             {loading && [0, 1, 2].map(i => (
               <div key={i} className="h-11 bg-slate-800 rounded-lg animate-pulse" />
             ))}
 
-            {/* Error state */}
             {!loading && error && (
               <EmptyState
                 variant="error"
@@ -273,12 +273,10 @@ export function BookmarksPage() {
               />
             )}
 
-            {/* Empty state */}
             {showEmpty && (
               <EmptyState variant={emptyVariant} onClearFilters={clearFilters} />
             )}
 
-            {/* Bookmark cards */}
             {!loading && !error && bookmarks.map((bookmark, i) => (
               <BookmarkCard
                 key={bookmark.id}
@@ -287,12 +285,12 @@ export function BookmarksPage() {
                 onDelete={handleDelete}
                 onToggleRead={handleToggleRead}
                 onTagsChange={handleTagsChange}
+                onNotesChange={handleNotesChange}
                 isLast={i === bookmarks.length - 1}
                 lastRef={lastCardRef}
               />
             ))}
 
-            {/* Load-more spinner */}
             {loadingMore && (
               <div className="flex justify-center py-2">
                 <svg className="animate-spin w-4 h-4 text-indigo-500" fill="none" viewBox="0 0 24 24">

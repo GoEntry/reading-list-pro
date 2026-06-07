@@ -6,8 +6,6 @@ import type { Tag } from '../api/bookmarks';
 
 const PRESET_COLORS = ['#6366f1', '#10b981', '#f59e0b', '#ef4444', '#3b82f6', '#ec4899'];
 
-// ─── Profile ────────────────────────────────────────────────────────────────
-
 function ProfileSection() {
   const { user, logout } = useAuth();
 
@@ -33,8 +31,6 @@ function ProfileSection() {
     </section>
   );
 }
-
-// ─── Theme ───────────────────────────────────────────────────────────────────
 
 function ThemeSection() {
   const { theme, setTheme } = useTheme();
@@ -67,8 +63,6 @@ function ThemeSection() {
     </section>
   );
 }
-
-// ─── Tags ────────────────────────────────────────────────────────────────────
 
 function TagsSection() {
   const [tags, setTags] = useState<Tag[]>([]);
@@ -165,7 +159,6 @@ function TagsSection() {
         <p className="text-[10px] text-red-400 mb-2">{error}</p>
       )}
 
-      {/* Create form */}
       <div className="flex items-center gap-2 mb-4">
         <input
           value={newName}
@@ -196,7 +189,6 @@ function TagsSection() {
         </button>
       </div>
 
-      {/* Tag list */}
       {loading ? (
         <div className="h-6 bg-slate-800 rounded animate-pulse" />
       ) : tags.length === 0 ? (
@@ -272,8 +264,6 @@ function TagsSection() {
     </section>
   );
 }
-
-// ─── Root ────────────────────────────────────────────────────────────────────
 
 export function App() {
   const { user, loading } = useAuth();

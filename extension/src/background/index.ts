@@ -15,7 +15,6 @@ chrome.runtime.onInstalled.addListener(({ reason }) => {
 chrome.contextMenus.onClicked.addListener(async (info, tab) => {
   if (!tab) return;
 
-  // 1. Pre-populate meta from tab data (fallback if executeScript fails)
   const meta: { title: string; description: string; previewImage: string; favicon: string } = {
     title: tab.title ?? '',
     description: '',
@@ -23,7 +22,6 @@ chrome.contextMenus.onClicked.addListener(async (info, tab) => {
     favicon: tab.favIconUrl ?? '',
   };
 
-  // 2. Try to extract richer OG metadata from the page
   try {
     const results = await chrome.scripting.executeScript({
       target: { tabId: tab.id! },
@@ -33,15 +31,13 @@ chrome.contextMenus.onClicked.addListener(async (info, tab) => {
       Object.assign(meta, results[0].result);
     }
   } catch {
-    // chrome:// or chrome-extension:// pages — tab data fallback is already set above
+    // chrome:// страницы блокируют scripting — используем данные вкладки как fallback
   }
 
-  // 3. Get access token from storage
   const storage = await chrome.storage.local.get('reading_list_auth');
   const token = (storage['reading_list_auth'] as { accessToken?: string } | undefined)?.accessToken;
-  if (!token) return; // not logged in — silently skip
+  if (!token) return;
 
-  // 4. POST to API
   const url = info.linkUrl ?? info.pageUrl ?? tab.url ?? '';
   if (!url) return;
 
@@ -55,11 +51,10 @@ chrome.contextMenus.onClicked.addListener(async (info, tab) => {
       body: JSON.stringify({ url, ...meta }),
     });
   } catch {
-    // Network error — badge shows nothing, user retries manually
+    // сетевая ошибка — пользователь повторит вручную
     return;
   }
 
-  // 5. Badge confirmation: green checkmark for 2 seconds
   chrome.action.setBadgeText({ text: '✓' });
   chrome.action.setBadgeBackgroundColor({ color: '#22c55e' });
   setTimeout(() => chrome.action.setBadgeText({ text: '' }), 2000);
